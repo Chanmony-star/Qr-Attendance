@@ -48,28 +48,30 @@ The data model consists of three main tables handling students, individual QR co
 
 To apply these models to your local database environment and verify their instantiation, follow these steps:
 
-run "python manage.py shell"
-from django.utils import timezone
-from database.models import Student, QrSession, AttendanceRecord
-from django.db import IntegrityError
+1. Open the Django shell in your terminal:
+```bash
+   python manage.py shell
+   from django.utils import timezone
+   from database.models import Student, QrSession, AttendanceRecord
+   from django.db import IntegrityError
 
-# 1. Instantiate and save a mock student
-student = Student.objects.create(student_id=1001, full_name="John Doe")
-print(f"Created Student: {student}")
+   # 1. Instantiate and save a mock student
+   student = Student.objects.create(student_id=1001, full_name="John Doe")
+   print(f"Created Student: {student}")
 
-# 2. Instantiate and save a mock QR session
-session = QrSession.objects.create(
-    token="xyz_secure_token_123", 
-    expires_at=timezone.now() + timezone.timedelta(minutes=15)
-)
-print(f"Created Session: {session}")
+   # 2. Instantiate and save a mock QR session
+   session = QrSession.objects.create(
+       token="xyz_secure_token_123", 
+       expires_at=timezone.now() + timezone.timedelta(minutes=15)
+ed)
+   print(f"Created Session: {session}")
 
-# 3. Instantiate and save an attendance record
-record = AttendanceRecord.objects.create(student=student, qr_session=session)
-print(f"Created Attendance Record: {record}")
+   # 3. Instantiate and save an attendance record
+   record = AttendanceRecord.objects.create(student=student, qr_session=session)
+   print(f"Created Attendance Record: {record}")
 
-# 4. Verify UniqueConstraint (This should fail safely)
-try:
-    duplicate_record = AttendanceRecord.objects.create(student=student, qr_session=session)
-except IntegrityError:
-    print("Success: UniqueConstraint prevented duplicate attendance!")
+   # 4. Verify UniqueConstraint (This should fail safely)
+   try:
+       duplicate_record = AttendanceRecord.objects.create(student=student, qr_session=session)
+   except IntegrityError:
+       print("Success: UniqueConstraint prevented duplicate attendance!")
