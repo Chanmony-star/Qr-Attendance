@@ -779,8 +779,8 @@ BASE_URL=http://127.0.0.1:8000
 
 ## 📞 Communication
 
-- **Group Chat:** [Discord/WhatsApp link]
-- **Daily Standup:** 9:00 AM (15 min)
+- **Group Chat:** [telegram]
+- **Daily Standup:** anytime
 - **Code Reviews:** Within 4 hours
 - **Emergency Contact:** Team Lead
 
