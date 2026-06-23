@@ -1,3 +1,0 @@
-User              — id, student_id, full_name, remember_me_token, created_at
-QRSession         — id, token, created_at, expires_at, is_active
-AttendanceRecord  — id, user_id (FK), qr_session_id (FK), timestamp
