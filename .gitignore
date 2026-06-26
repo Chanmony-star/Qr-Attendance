@@ -1,3 +1,4 @@
+feature/frontend-scan@me
 node_modules/
 .next/
 .claude-flow/
@@ -6,3 +7,23 @@ node_modules/
 .env
 .env.local
 .env.*.local
+=======
+# Python
+__pycache__/
+*.py[cod]
+
+# Django
+db.sqlite3
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/
+ develop

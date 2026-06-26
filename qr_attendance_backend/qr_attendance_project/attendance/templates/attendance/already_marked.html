@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Already Marked</title>
+<style>
+  body{font-family:system-ui,sans-serif;background:#f1f5f9;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem;}
+  .card{background:#fff;border-radius:12px;padding:2rem;max-width:380px;width:100%;box-shadow:0 4px 20px rgba(0,0,0,.1);text-align:center;}
+  .icon{font-size:3rem;margin-bottom:.75rem;}
+  h2{font-size:1.2rem;margin-bottom:.5rem;}
+  p{color:#64748b;font-size:.92rem;}
+</style></head>
+<body>
+<div class="card">
+  <div class="icon">✅</div>
+  <h2>Already Marked!</h2>
+  <p>{{ student.full_name }}, you already marked attendance for <strong>{{ session.course_name }}</strong>.</p>
+  <p style="margin-top:1rem;font-size:.8rem;color:#94a3b8;">No further action needed.</p>
+</div>
+</body></html>

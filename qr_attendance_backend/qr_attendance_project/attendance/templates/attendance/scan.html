@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mark Attendance – {{ session.course_name }}</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: #f1f5f9; min-height: 100vh;
+           display: flex; align-items: center; justify-content: center; padding: 1rem; }
+    .card { background: #fff; border-radius: 12px; padding: 2rem; max-width: 420px; width: 100%;
+            box-shadow: 0 4px 20px rgba(0,0,0,.1); }
+    h2 { font-size: 1.3rem; margin-bottom: .25rem; }
+    .course { color: #2563eb; font-weight: 700; margin-bottom: 1.5rem; font-size: 1rem; }
+    label { display: block; font-size: .82rem; font-weight: 600; color: #64748b; margin-bottom: .3rem; }
+    input { width: 100%; padding: .6rem .75rem; border: 1.5px solid #e2e8f0; border-radius: 6px;
+            font-size: .95rem; margin-bottom: 1rem; }
+    input:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.15); }
+    .btn { width: 100%; padding: .75rem; background: #2563eb; color: #fff; border: none; border-radius: 8px;
+           font-size: 1rem; font-weight: 700; cursor: pointer; margin-top: .5rem; }
+    .btn:hover { background: #1d4ed8; }
+    .error { background: #fee2e2; color: #991b1b; padding: .75rem; border-radius: 6px;
+             margin-bottom: 1rem; font-size: .88rem; }
+    .note { font-size: .78rem; color: #94a3b8; text-align: center; margin-top: 1rem; }
+  </style>
+</head>
+<body>
+<div class="card">
+  <h2>Mark Attendance</h2>
+  <div class="course">{{ session.course_name }}</div>
+
+  {% if form.non_field_errors %}
+    <div class="error">{{ form.non_field_errors.0 }}</div>
+  {% endif %}
+
+  <form method="post">
+    {% csrf_token %}
+    <label>Student ID</label>
+    <input type="text" name="student_id" placeholder="e.g. ST-2024-001"
+           value="{{ form.student_id.value|default:'' }}" required>
+    {% if form.student_id.errors %}<div class="error">{{ form.student_id.errors.0 }}</div>{% endif %}
+
+    <label>Full Name</label>
+    <input type="text" name="full_name" placeholder="Your full name"
+           value="{{ form.full_name.value|default:'' }}" required>
+    {% if form.full_name.errors %}<div class="error">{{ form.full_name.errors.0 }}</div>{% endif %}
+
+    <label>Email Address</label>
+    <input type="email" name="email" placeholder="student@school.edu"
+           value="{{ form.email.value|default:'' }}" required>
+    {% if form.email.errors %}<div class="error">{{ form.email.errors.0 }}</div>{% endif %}
+
+    <button type="submit" class="btn">Continue →</button>
+  </form>
+
+  <p class="note">Your details are saved so you only enter them once. 🔒</p>
+</div>
+</body>
+</html>
