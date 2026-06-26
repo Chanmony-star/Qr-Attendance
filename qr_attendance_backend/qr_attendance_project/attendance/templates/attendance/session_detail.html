@@ -1,0 +1,80 @@
+{% extends "attendance/base.html" %}
+{% block title %}{{ session.course_name }} – QR Attendance{% endblock %}
+{% block content %}
+<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.5rem;flex-wrap:wrap;gap:.75rem;">
+  <div>
+    <a href="{% url 'dashboard' %}" style="font-size:.85rem;color:var(--muted);">← Dashboard</a>
+    <h1 style="font-size:1.4rem;margin-top:.25rem;">{{ session.course_name }}</h1>
+    {% if session.description %}<p style="color:var(--muted);margin-top:.25rem;">{{ session.description }}</p>{% endif %}
+  </div>
+  <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;">
+    {% if session.is_active %}
+      <span class="badge badge-open">Open</span>
+      <form method="post" action="{% url 'close_session' session.pk %}" style="display:inline;">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger btn-sm"
+                onclick="return confirm('Close this session? Students will no longer be able to mark attendance.')">
+          Close Session
+        </button>
+      </form>
+    {% else %}
+      <span class="badge badge-closed">Closed</span>
+    {% endif %}
+    <a href="{% url 'attendance_report' session.pk %}" class="btn btn-outline btn-sm">📊 Report</a>
+    <a href="{% url 'attendance_report' session.pk %}?format=csv" class="btn btn-outline btn-sm">⬇ CSV</a>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 2fr;gap:1.5rem;align-items:start;">
+
+  <!-- QR Code panel -->
+  <div class="card" style="text-align:center;">
+    <h3 style="font-size:.95rem;color:var(--muted);margin-bottom:1rem;">QR Code</h3>
+    {% if session.qr_code %}
+      <div class="qr-wrap"><img src="{{ session.qr_code.url }}" alt="QR Code for {{ session.course_name }}"></div>
+      <a href="{{ session.qr_code.url }}" download class="btn btn-outline btn-sm" style="margin-top:.75rem;">⬇ Download</a>
+    {% else %}
+      <p style="color:var(--muted);">QR code not generated.</p>
+    {% endif %}
+    <div style="margin-top:1rem;font-size:.8rem;color:var(--muted);">
+      Expires: <strong>{{ session.expires_at|date:"M d, H:i" }}</strong>
+    </div>
+    <div style="margin-top:.5rem;">
+      <div class="stats" style="grid-template-columns:1fr 1fr;gap:.5rem;">
+        <div class="stat-card"><div class="num" style="font-size:1.4rem;">{{ session.attendance_count }}</div><div class="lbl">Marked</div></div>
+        <div class="stat-card"><div class="num" style="font-size:1.4rem;">{{ records|length }}</div><div class="lbl">Total</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Attendance list -->
+  <div class="card" style="padding:0;overflow:hidden;">
+    <div style="padding:1rem 1.25rem;border-bottom:1px solid var(--border);">
+      <h3 style="font-size:1rem;">Attendance List</h3>
+    </div>
+    {% if records %}
+    <table>
+      <thead><tr><th>#</th><th>Student</th><th>Time</th><th>WiFi</th><th>GPS</th></tr></thead>
+      <tbody>
+        {% for rec in records %}
+        <tr>
+          <td style="color:var(--muted);">{{ forloop.counter }}</td>
+          <td>
+            <strong>{{ rec.student.full_name }}</strong><br>
+            <small style="color:var(--muted);">{{ rec.student.student_id }}</small>
+          </td>
+          <td style="font-size:.82rem;">{{ rec.submitted_at|date:"H:i:s" }}</td>
+          <td>{% if rec.wifi_verified %}<span class="check-yes">✓</span>{% else %}<span class="check-no">✗</span>{% endif %}</td>
+          <td>{% if rec.gps_verified %}<span class="check-yes">✓</span>{% else %}<span class="check-no">✗</span>{% endif %}
+              {% if rec.gps_distance_m %}<small style="color:var(--muted);">({{ rec.gps_distance_m }}m)</small>{% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div style="padding:2rem;text-align:center;color:var(--muted);">No students yet.</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

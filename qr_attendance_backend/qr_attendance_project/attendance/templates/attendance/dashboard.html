@@ -1,0 +1,51 @@
+{% extends "attendance/base.html" %}
+{% block title %}Dashboard – QR Attendance{% endblock %}
+{% block content %}
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;">
+  <h1 style="font-size:1.5rem;">Dashboard</h1>
+  <a href="{% url 'create_session' %}" class="btn btn-primary">+ New Session</a>
+</div>
+
+<div class="stats">
+  <div class="stat-card"><div class="num">{{ total_sessions }}</div><div class="lbl">Total Sessions</div></div>
+  <div class="stat-card"><div class="num">{{ open_sessions }}</div><div class="lbl">Open Now</div></div>
+  <div class="stat-card"><div class="num">{{ sessions|length }}</div><div class="lbl">Your Sessions</div></div>
+</div>
+
+{% if sessions %}
+<div class="card" style="padding:0;overflow:hidden;">
+  <table>
+    <thead>
+      <tr>
+        <th>Course</th><th>Status</th><th>Students</th><th>Created</th><th>Expires</th><th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for s in sessions %}
+      <tr>
+        <td><strong>{{ s.course_name }}</strong>{% if s.description %}<br><small style="color:var(--muted);">{{ s.description|truncatechars:50 }}</small>{% endif %}</td>
+        <td>
+          {% if s.is_active %}<span class="badge badge-open">Open</span>
+          {% else %}<span class="badge badge-closed">Closed</span>{% endif %}
+        </td>
+        <td>{{ s.attendance_count }}</td>
+        <td style="font-size:.82rem;color:var(--muted);">{{ s.created_at|date:"M d, H:i" }}</td>
+        <td style="font-size:.82rem;color:{% if s.is_active %}var(--success){% else %}var(--danger){% endif %};">
+          {{ s.expires_at|date:"M d, H:i" }}
+        </td>
+        <td>
+          <a href="{% url 'session_detail' s.pk %}" class="btn btn-outline btn-sm">View</a>
+          <a href="{% url 'attendance_report' s.pk %}" class="btn btn-outline btn-sm">Report</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="card" style="text-align:center;padding:3rem;color:var(--muted);">
+  <p style="font-size:1.1rem;margin-bottom:1rem;">No sessions yet.</p>
+  <a href="{% url 'create_session' %}" class="btn btn-primary">Create your first session</a>
+</div>
+{% endif %}
+{% endblock %}

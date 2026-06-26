@@ -1,0 +1,59 @@
+{% extends "attendance/base.html" %}
+{% block title %}Report – {{ session.course_name }}{% endblock %}
+{% block content %}
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:.75rem;">
+  <div>
+    <a href="{% url 'session_detail' session.pk %}" style="font-size:.85rem;color:var(--muted);">← Session</a>
+    <h1 style="font-size:1.4rem;margin-top:.25rem;">Attendance Report</h1>
+    <p style="color:var(--muted);">{{ session.course_name }} · {{ session.created_at|date:"F d, Y H:i" }}</p>
+  </div>
+  <div style="display:flex;gap:.75rem;">
+    <a href="?format=csv" class="btn btn-outline btn-sm">⬇ Download CSV</a>
+    <a href="{% url 'dashboard' %}" class="btn btn-outline btn-sm">Dashboard</a>
+  </div>
+</div>
+
+<div class="stats" style="grid-template-columns:repeat(4,1fr);">
+  <div class="stat-card"><div class="num">{{ records|length }}</div><div class="lbl">Total Students</div></div>
+  <div class="stat-card">
+    <div class="num">{% with records|length as total %}{{ records|dictsort:"wifi_verified"|length }}{% endwith %}</div>
+    <div class="lbl">WiFi Verified</div>
+  </div>
+  <div class="stat-card">
+    <div class="num">{% with records|length as total %}{{ records|dictsort:"gps_verified"|length }}{% endwith %}</div>
+    <div class="lbl">GPS Verified</div>
+  </div>
+  <div class="stat-card">
+    <div class="num">{% if session.is_active %}Open{% else %}Closed{% endif %}</div>
+    <div class="lbl">Status</div>
+  </div>
+</div>
+
+<div class="card" style="padding:0;overflow:hidden;">
+  <table>
+    <thead>
+      <tr>
+        <th>#</th><th>Student ID</th><th>Full Name</th><th>Email</th>
+        <th>Time</th><th>WiFi</th><th>GPS</th><th>Distance</th><th>IP</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for rec in records %}
+      <tr>
+        <td style="color:var(--muted);">{{ forloop.counter }}</td>
+        <td><code>{{ rec.student.student_id }}</code></td>
+        <td><strong>{{ rec.student.full_name }}</strong></td>
+        <td style="font-size:.82rem;">{{ rec.student.email }}</td>
+        <td style="font-size:.82rem;">{{ rec.submitted_at|date:"H:i:s" }}</td>
+        <td>{% if rec.wifi_verified %}<span class="check-yes">✓</span>{% else %}<span class="check-no">✗</span>{% endif %}</td>
+        <td>{% if rec.gps_verified %}<span class="check-yes">✓</span>{% else %}<span class="check-no">✗</span>{% endif %}</td>
+        <td style="font-size:.82rem;">{% if rec.gps_distance_m %}{{ rec.gps_distance_m }}m{% else %}—{% endif %}</td>
+        <td style="font-size:.78rem;color:var(--muted);">{{ rec.ip_address }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="9" style="text-align:center;padding:2rem;color:var(--muted);">No records.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
