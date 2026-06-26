@@ -1,0 +1,8 @@
+node_modules/
+.next/
+.claude-flow/
+.impeccable/
+*.local
+.env
+.env.local
+.env.*.local
