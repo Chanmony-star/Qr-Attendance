@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Confirm Attendance</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: #f1f5f9; min-height: 100vh;
+           display: flex; align-items: center; justify-content: center; padding: 1rem; }
+    .card { background: #fff; border-radius: 12px; padding: 2rem; max-width: 420px; width: 100%;
+            box-shadow: 0 4px 20px rgba(0,0,0,.1); text-align: center; }
+    .avatar { width: 64px; height: 64px; background: #dbeafe; border-radius: 50%;
+              display: flex; align-items: center; justify-content: center; font-size: 1.8rem;
+              margin: 0 auto 1rem; }
+    h2 { font-size: 1.25rem; margin-bottom: .5rem; }
+    .course { color: #2563eb; font-weight: 600; margin-bottom: 1.5rem; }
+    .student-info { background: #f8fafc; border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; text-align: left; }
+    .student-info .row { display: flex; justify-content: space-between; padding: .35rem 0;
+                         border-bottom: 1px solid #e2e8f0; font-size: .9rem; }
+    .student-info .row:last-child { border: none; }
+    .student-info .lbl { color: #64748b; }
+    #status { padding: .75rem; border-radius: 8px; margin-bottom: 1rem; font-size: .9rem; display: none; }
+    .status-loading { background: #fef9c3; color: #92400e; display: block !important; }
+    .status-success { background: #dcfce7; color: #166534; display: block !important; }
+    .status-error   { background: #fee2e2; color: #991b1b; display: block !important; }
+    .btn { width: 100%; padding: .75rem; background: #16a34a; color: #fff; border: none;
+           border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer; }
+    .btn:disabled { opacity: .6; cursor: not-allowed; }
+    .check-row { display: flex; align-items: center; gap: .5rem; font-size: .82rem; color: #64748b; margin-top: .5rem; }
+    .warn { color: #d97706; }
+  </style>
+</head>
+<body>
+<div class="card">
+  <div class="avatar">👤</div>
+  <h2>Hello, {{ student.full_name }}!</h2>
+  <div class="course">{{ session.course_name }}</div>
+
+  <div class="student-info">
+    <div class="row"><span class="lbl">Student ID</span><span>{{ student.student_id }}</span></div>
+    <div class="row"><span class="lbl">Email</span><span>{{ student.email }}</span></div>
+  </div>
+
+  <div id="status"></div>
+
+  <div id="checks" style="margin-bottom:1.25rem;">
+    <div class="check-row" id="gps-status">📍 Requesting GPS location…</div>
+    <div class="check-row" id="wifi-status">📡 WiFi check (server-side)</div>
+  </div>
+
+  <button class="btn" id="submit-btn" onclick="submitAttendance()">✅ Mark My Attendance</button>
+</div>
+
+<script>
+const TOKEN = "{{ token }}";
+const STUDENT_UUID = "{{ student.id }}";
+let gpsLat = null, gpsLon = null;
+
+function getCookie(name) {
+  const v = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+  return v ? v.pop() : '';
+}
+
+function setStatus(msg, cls) {
+  const el = document.getElementById('status');
+  el.textContent = msg;
+  el.className = 'status-' + cls;
+}
+
+// Request GPS on page load
+if (navigator.geolocation) {
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      gpsLat = pos.coords.latitude;
+      gpsLon = pos.coords.longitude;
+      document.getElementById('gps-status').innerHTML = '📍 GPS located ✓';
+      document.getElementById('gps-status').style.color = '#16a34a';
+    },
+    (err) => {
+      document.getElementById('gps-status').innerHTML =
+        '<span class="warn">📍 GPS unavailable – attendance may not be verified</span>';
+    },
+    { timeout: 8000, enableHighAccuracy: true }
+  );
+} else {
+  document.getElementById('gps-status').innerHTML = '<span class="warn">📍 GPS not supported</span>';
+}
+
+async function submitAttendance() {
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  setStatus('Submitting attendance…', 'loading');
+
+  const csrfToken = getCookie('csrftoken');
+  const body = new URLSearchParams({
+    token: TOKEN,
+    student_uuid: STUDENT_UUID,
+    latitude:  gpsLat  ?? '',
+    longitude: gpsLon ?? '',
+    csrfmiddlewaretoken: csrfToken,
+  });
+
+  try {
+    const res = await fetch('/submit-attendance/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded',
+                 'X-CSRFToken': csrfToken },
+      body,
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      let msg = `✅ Attendance recorded for ${data.course}!`;
+      if (data.warnings && data.warnings.length) {
+        msg += '\n⚠ ' + data.warnings.join(' | ');
+      }
+      setStatus(msg, 'success');
+      document.getElementById('wifi-status').innerHTML =
+        data.wifi_verified ? '📡 School WiFi ✓' : '<span class="warn">📡 Not on school WiFi ✗</span>';
+    } else if (data.duplicate) {
+      setStatus('⚠ You already marked attendance for this session.', 'error');
+    } else {
+      setStatus('❌ ' + (data.error || 'Submission failed. Please try again.'), 'error');
+      btn.disabled = false;
+    }
+  } catch (err) {
+    setStatus('❌ Network error. Please check your connection and retry.', 'error');
+    btn.disabled = false;
+  }
+}
+</script>
+</body>
+</html>
