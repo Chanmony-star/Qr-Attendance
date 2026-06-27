@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Moon, Sun, QrCode } from "lucide-react";
+import { Menu, X, Moon, Sun, QrCode, LogIn } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -71,14 +71,12 @@ export function Navbar() {
               )}
               aria-label="Toggle theme"
             >
-              {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              {mounted ? (theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />) : <Sun className="h-4 w-4" />}
             </button>
             <div className="hidden md:flex items-center gap-3">
-              <Button variant="ghost" size="sm">
-                Sign In
-              </Button>
-              <Button variant="primary" size="sm">
-                Start Free
+              <Button variant="primary" size="sm" className="gap-2">
+                <LogIn className="h-4 w-4" />
+                Sign in with Google
               </Button>
             </div>
             <button
@@ -112,12 +110,10 @@ export function Navbar() {
                   {link.label}
                 </a>
               ))}
-              <div className="pt-2 flex gap-3">
-                <Button variant="ghost" size="sm" className="flex-1">
-                  Sign In
-                </Button>
-                <Button variant="primary" size="sm" className="flex-1">
-                  Start Free
+              <div className="pt-2">
+                <Button variant="primary" size="sm" className="w-full gap-2">
+                  <LogIn className="h-4 w-4" />
+                  Sign in with Google
                 </Button>
               </div>
             </div>
