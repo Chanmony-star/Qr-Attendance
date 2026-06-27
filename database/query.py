@@ -14,19 +14,18 @@ def get_student_by_student_id(student_id):
 
 def get_valid_session(token):
     # Search for valid QR sessions by their token
-    session = QrSession.objects.filter(token=token).first()
-
-    if token is None:
+    if not token:
         return None
-    
+    session = QrSession.objects.filter(token=token).first()
+    if session is None:
+        return None
     if session.expires_at > timezone.now():
         return session
-    
     return None
 
 def get_student_by_token(token):
     # Search for student by their remember me token
-    return Student.objects.filter(remember_me_token=token)
+    return Student.objects.filter(remember_me_token=token).first()
 
 def save_remember_me_token(student, token):
     # Save remember me token to a student object
@@ -57,3 +56,9 @@ def get_all_sessions():
 
 def get_all_attendance():
     return AttendanceRecord.objects.all()
+
+def get_attendance_by_student(student):
+    return AttendanceRecord.objects.filter(student=student)
+
+def get_attendance_by_session(session):
+    return AttendanceRecord.objects.filter(qr_session=session)
