@@ -48,3 +48,12 @@ def record_attendance(student, session):
         student=student,
         qr_session=session
     )
+
+def get_all_students():
+    return Student.objects.all()
+
+def get_all_sessions():
+    return QrSession.objects.all()
+
+def get_all_attendance():
+    return AttendanceRecord.objects.all()
