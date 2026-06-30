@@ -75,6 +75,9 @@ ed)
    try:
        duplicate_record = AttendanceRecord.objects.create(student=student, qr_session=session)
    except IntegrityError:
+<<<<<<< HEAD
+       print("Success: UniqueConstraint prevented duplicate attendance!")
+=======
        print("Success: UniqueConstraint prevented duplicate attendance!")
 =======
 # 📘 QR Attendance System — Full Team README
@@ -905,3 +908,4 @@ Remember:
 *Last updated: [Date]*  
 *Project deadline: [Date + 14 days]*
 
+>>>>>>> bfe7849e2045278208cf57f24e53f9ccf70021bf

@@ -2,6 +2,7 @@ from django.db import models
 
 class Student(models.Model):
     student_id = models.IntegerField(unique=True)
+    remember_me_token = models.CharField(max_length=255, unique=True, null=True, blank=True)
     full_name = models.CharField(max_length=50)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -10,6 +11,7 @@ class Student(models.Model):
     
 
 class QrSession(models.Model):
+    class_name = models.CharField(max_length=255, default='')
     token = models.CharField(max_length=255, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     expires_at = models.DateTimeField()
