@@ -11,6 +11,7 @@ class Student(models.Model):
     
 
 class QrSession(models.Model):
+    class_name = models.CharField(max_length=255, default='')
     token = models.CharField(max_length=255, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     expires_at = models.DateTimeField()
